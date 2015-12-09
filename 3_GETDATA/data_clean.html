@@ -64,6 +64,8 @@ img {
 </div>
 
 
+<p>:sunny:</p>
+<p>/play secret</p>
 <p>This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <a href="http://rmarkdown.rstudio.com" class="uri">http://rmarkdown.rstudio.com</a>.</p>
 <p>When you click the <strong>Knit</strong> button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:</p>
 <pre class="r"><code>summary(cars)</code></pre>
@@ -434,16 +436,16 @@ df</code></pre>
 <pre class="r"><code>df &lt;- data.frame(&quot;country&quot;= rep(country, 2), &quot;food&quot;= rep(food, each = 2), &quot;tonnes&quot; = sample(1:10, 4))
 df</code></pre>
 <pre><code>##       country   food tonnes
-## 1       china  apple      7
-## 2 afghanistan  apple     10
-## 3       china orange      4
-## 4 afghanistan orange      3</code></pre>
+## 1       china  apple      3
+## 2 afghanistan  apple      9
+## 3       china orange      6
+## 4 afghanistan orange      1</code></pre>
 <pre class="r"><code>library(reshape2)</code></pre>
 <pre><code>## Warning: package 'reshape2' was built under R version 3.1.3</code></pre>
 <pre class="r"><code>dcast(df[,1:3], formula = country ~ food, value.var = &quot;tonnes&quot;)</code></pre>
 <pre><code>##       country apple orange
-## 1 afghanistan    10      3
-## 2       china     7      4</code></pre>
+## 1 afghanistan     9      1
+## 2       china     3      6</code></pre>
 <ul>
 <li><strong>Appending data</strong>
 <ul>
@@ -820,7 +822,7 @@ df</code></pre>
 <li><code>tz = &quot;&quot;</code> = can use the “tz” argument to specify time zones (list <a href="http://en.wikipedia.org/wiki/List_of_tz_database_time_zones">here</a>)</li>
 </ul></li>
 <li><em><strong>Note</strong>: there are a variety of functions that are available to parse different formats, all of them are capable of converting the correct information if the order of month year day is correct </em></li>
-<li><em><strong>Note</strong>: when necessary, <code>//</code> or <code>—</code> should be added to provide clarity in date formatting </em></li>
+<li><em><strong>Note</strong>: when necessary, <code>//</code> or <code>â</code> should be added to provide clarity in date formatting </em></li>
 </ul></li>
 <li><code>update(POSIXct, hours = 8, minutes = 34, seconds = 55)</code> = updates components of a date time
 <ul>
@@ -857,17 +859,17 @@ df &lt;- data.frame(&quot;country&quot;= rep(country, 2), &quot;food&quot;= rep(
 df$food &lt;- with(df, food &lt;- factor(food, labels = c(1,2)))
 df</code></pre>
 <pre><code>##       country food tonnes
-## 1       china    1      6
-## 2 afghanistan    1      5
-## 3       china    2      1
-## 4 afghanistan    2     10</code></pre>
+## 1       china    1      3
+## 2 afghanistan    1      9
+## 3       china    2      8
+## 4 afghanistan    2      1</code></pre>
 <ul>
 <li><strong>Clean up text</strong>
 <ul>
 <li><code>gsub(&quot;delete&quot;, &quot;replace_with&quot;, txt)</code></li>
 <li><code>txt &lt;- c(&quot;I wanna be the very best&quot;)</code></li>
 <li><code>gsub(&quot;best&quot;, &quot;worst&quot;, txt)</code> = replace <code>best</code> with <code>worst</code></li>
-<li><code>txt &lt;- gsub(&quot;\xca&quot;, &quot;&quot;, txt)</code> = remove unrecognised character <code>�</code> and replace with space.</li>
+<li><code>txt &lt;- gsub(&quot;\xca&quot;, &quot;&quot;, txt)</code> = remove unrecognised character <code>ï¿½</code> and replace with space.</li>
 </ul></li>
 <li><strong>Remove lines/rows</strong>
 <ul>
@@ -1028,7 +1030,7 @@ Now I'm the real Slim Shady...</code></pre>
 <li><code>m</code> = at least, <code>n</code> = not more than</li>
 <li><code>{m}</code> = exactly <code>m</code> matches</li>
 <li><code>{m, }</code> = at least m matches</li>
-<li><em>example</em>: <code>Bush( +[^ ]+ +){1, 5} debate</code> debates matches “Bush + (at least one space + any word that doesn’t contain space + at least one space) this pattern repeated between 1 and 5 times + debates”. The word bush with debate with 1-5 words between.</li>
+<li><em>example</em>: <code>Bush( +[^ ]+ +){1, 5} debate</code> debates matches “Bush + (at least one space + any word that doesnât contain space + at least one space) this pattern repeated between 1 and 5 times + debates”. The word bush with debate with 1-5 words between.</li>
 <li><code>bush won the debate</code></li>
 <li><code>Bush should have taken the debate more seriously</code>.</li>
 <li><em>example2</em>: <code>Ged( +[^ ]+ +){1, 5} magic</code>. The word Ged and magic with 1-5 words between. <code>Ged wanted more magic power</code>, <code>Ged set down the book of magic and runes</code>.</li>
