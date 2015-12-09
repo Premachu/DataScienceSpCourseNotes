@@ -1,6 +1,11 @@
 ---
-title: "Cleaning Data"
-output: html_document
+title: "Getting and Cleaning Data Course Notes"
+author: "Prem Gill"
+output:
+  html_document:
+    highlight: pygments
+    theme: spacelab
+    toc: yes
 ---
 
 ## Overview
