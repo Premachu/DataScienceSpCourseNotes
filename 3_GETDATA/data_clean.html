@@ -66,6 +66,7 @@ img {
 
 <p>Emoji</p>
 <p>GitHub supports emoji! :sparkles: :camel: :boom:</p>
+<p>/play secret</p>
 <p>This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <a href="http://rmarkdown.rstudio.com" class="uri">http://rmarkdown.rstudio.com</a>.</p>
 <p>When you click the <strong>Knit</strong> button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:</p>
 <pre class="r"><code>summary(cars)</code></pre>
@@ -436,16 +437,16 @@ df</code></pre>
 <pre class="r"><code>df &lt;- data.frame(&quot;country&quot;= rep(country, 2), &quot;food&quot;= rep(food, each = 2), &quot;tonnes&quot; = sample(1:10, 4))
 df</code></pre>
 <pre><code>##       country   food tonnes
-## 1       china  apple      2
-## 2 afghanistan  apple      1
-## 3       china orange      4
-## 4 afghanistan orange      6</code></pre>
+## 1       china  apple      1
+## 2 afghanistan  apple      4
+## 3       china orange      7
+## 4 afghanistan orange      5</code></pre>
 <pre class="r"><code>library(reshape2)</code></pre>
 <pre><code>## Warning: package 'reshape2' was built under R version 3.1.3</code></pre>
 <pre class="r"><code>dcast(df[,1:3], formula = country ~ food, value.var = &quot;tonnes&quot;)</code></pre>
 <pre><code>##       country apple orange
-## 1 afghanistan     1      6
-## 2       china     2      4</code></pre>
+## 1 afghanistan     4      5
+## 2       china     1      7</code></pre>
 <ul>
 <li><strong>Appending data</strong>
 <ul>
@@ -859,10 +860,10 @@ df &lt;- data.frame(&quot;country&quot;= rep(country, 2), &quot;food&quot;= rep(
 df$food &lt;- with(df, food &lt;- factor(food, labels = c(1,2)))
 df</code></pre>
 <pre><code>##       country food tonnes
-## 1       china    1      1
-## 2 afghanistan    1      7
-## 3       china    2      4
-## 4 afghanistan    2      3</code></pre>
+## 1       china    1      5
+## 2 afghanistan    1      3
+## 3       china    2      6
+## 4 afghanistan    2      7</code></pre>
 <ul>
 <li><strong>Clean up text</strong>
 <ul>
