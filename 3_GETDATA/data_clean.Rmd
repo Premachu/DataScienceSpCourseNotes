@@ -1,0 +1,740 @@
+---
+title: "Cleaning Data"
+output: html_document
+---
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r}
+summary(cars)
+```
+
+You can also embed plots, for example:
+
+```{r, echo=FALSE}
+plot(cars)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+## Overview
+
+## Downloading Files
+* **Check if file exists and download file**
+    * `if(!file.exists("data"){dir.create("data")}`
+* **Download file**
+    * `download.file(url, destfile= "data/filename.extension")`
+* **Download xlsx files**
+    * `download.file(url, destfile= "data/filename.extension", mode='wb')`
+
+## Reading Excel Files
+
+* **library(xlsx)**
+* * `read.xlsx("path",sheetIndex=1,header=true, colIndex, rowIndex)`
+* * `write.xlsx` create excel file after analysis.
+* * `read.xlsx2` faster than 'write.xlsx' but reading subsets of rows may be unstable
+  
+## Reading XML Files
+
+* components
+    * ***markup*** = labels that give structure
+    * ***content*** = actual content of document
+* tags = `<section>`, `</section>`, `<line-break />`. General labels
+* elements = `<Greeting> Hello, world </Greeting>`. Specific tags
+* attributes = = `<image src ="a.jpg" alt = "b">`. Components of label
+
+```
+<pokedex> 
+  <party> 
+    <name>Squirtle</name>
+    <level>10</level>
+    <type>Water</type>
+    <move number="1">tackle</move>
+    <move number="2">bubble</move>
+  </party>
+  <party>
+    <name>Charmander</name>
+    <level>10</level>
+    <type>Water</type>
+    <move number="1">scratch</move> # 'move' tag with 'number' attribute
+    <move number="2">ember</move>
+  </party>
+</pokedex>
+```
+
+* reading file into R. Remove S from HTTPS urls. 
+    * `library(XML)`
+    * `doc <- xmlTreeParse(fileUrl, useInternal = TRUE)` = loads data
+    * `rootNode <- xmlRoot(doc)` = wrapper element for **entire document**
+    * `xmlName(rootNode)` = returns name of the document
+    * `names(rootNode)` = return names of elements
+    * `rootNode[[1]]` = access first elements, similar to list
+    * `rootNode[[1]][[1]]` = first sub component in the first element
+    * `xmlSApply(rootNode, xmlValue)` = returns every single tagged element
+
+```{r}
+library(XML)
+doc <- xmlTreeParse("pokedex.xml", useInternal = TRUE)
+rootNode <- xmlRoot(doc)
+xmlName(rootNode)
+names(rootNode) # two pokemon elements are tagged by 'party'
+rootNode[[1]] # the first element
+rootNode[[1]][[1]]
+```
+
+* **XPath** ([new language](http://www.stat.berkeley.edu/~statcur/Workshop2/Presentations/XML.pdf))
+    * get specific elements of document
+    * `/node` = top level node
+    * `//node` = node at any level
+    * `node[@attr-name = 'bob']` = node with attribute name
+  	* `xpathSApply(rootNode, "//name", xmlValue)` = get the values of all            elements with tag "name". `rootNode` is the entire document.
+		* `xpathSApply(rootNode, "//move", xmlValue)` = get the values of all elements with tag "move"
+
+* **extract HTML content by attribute**
+    * `doc <- htmlTreeParse(fileUrl, useInternal = TRUE)`
+    * `scores <- xpathSApply(doc, "//li[@class='score']", xmlValue)` = list items/list tag that have a particular class, such as score.
+* **extract table data from HTML**
+    * `table <- readHTMLTable(fileUrl)` = extract HTML table into a list containing dataframes
+    * `head(tb[[2]]) = extract first DF (1st gen pokemon)
+    * `head(tb[[2]][[4]])` = extract 
+    * 'head(tb[[2]][[5]])
+    * 'table(tb[[2]][[5]])
+    
+##  reading JSON 
+
+* **JSON** = JavaScript Object Notation
+    * common data format for API
+    * data can be stored as:
+        * `array` = ordered, comma sep, enclosed in []
+        * `object` = unordered, comma sep key:value, enclosed in {}
+    * library(jsonlite)
+    * `jsondata <- fromJSON("http://pokeapi.co/api/v1/pokedex/1/")`
+    names(jsondata)
+    jsondata$pokemon[[1]]
+    
+## Reading data from the web / webscraping
+* **extract data from open and accessible sites**
+  * `con <- url` = `url` opens connection to url
+  * `htmlCode <- readLines(url)` = read data from url.
+  *   * `close(con)` = close connection to url.
+  * The data of the url will be displayed as one big line. Parse with `XML packet` to get extract the information.
+* **parsing with XML**
+  * `library(XML)`
+  * `url <- "http://..."` = sets the desired URL as a character variable
+  * `html <- xmlTreeParse(fileUrl, useInternal = T)` = loads data 
+  * `xpathSApply(html, "//title", xmlValue)` = returns value of `//title` node/element/
+    * `xpathSApply(html, "//td[@id='col-citedBy']", xmlValue)` = returns the value of the `//td` element where the `id = 'col-citedBy'` in the html code
+
+* **extract data from sites that are less open (i.e. require passwords)**
+* **httr** webscrape from sites that are not open, i.e. having a passwords.
+  * `html2 <- GET(url)`
+  * `content2 <- content` = extract content from site as a large string
+    * `parsedHtml <- htmlParse(content2, asText=T)` = parses the text into HTML (same output as the XML package function htmlTreeParse)
+    * `xpathSApply(html, "//title", xmlValue)` = returns the value of the //title node/element
+    * accessing websites with passwords
+  	* `pg = GET("url")` = this would return a status 401 if the website requires log in without authenticating
+		* `pg2 = GET("url", authenticate("username", "password"))` = this authenticates before attempting to access the website, and the result would return a status 200 if authentication was successful
+		* `names2(pg2)` = returns names of different components
+    * using handles (username/login information)
+		* using handles allows you to save authentication across multiple parts of the website (only authenticate once for different requests)
+		* *example*: `google <- handle("http://google.com")`
+		* `pg1 <- GET(handle = google, path = "/")`
+		* `pg2 <- GET(handle = google, path = "search")`
+  * `xpathSApply(parsedhtml, "//title", xmlvalue)` 
+  * `content` extracts content after logging into site with R
+  * `google <- handle("http://google.com")` = use handle to save authentication for website. Prevents the need for authentication each time site is accessed. 
+  
+## Reading APIs
+
+* load `http` package first: `library(httr)`
+    * allows GET, POST, PUT, DELETE requests if you are authorized
+* `myapp <- oath_app("app", key = "consumerKey", secret = "consumerSecret")` = start authorization process for the app
+* `sig = sign_oauth1.0(myapp, token = "tokenGenerated", token_secret = "tokenSecret")` = login using the token information (sets up access so you can use it to get data)
+* `homeTL = get("url", sig)` = use the established authentication (instead of username/password) to get the data (usually in JSON format)
+    * use the url to specify what data you would like to get
+    * use the documentation to get information and parameters for the url and data you have access to
+* `json1 = content(homeTL)` = recognizes the data in JSON format and converts it to a structured R object [a bit hard to read]
+* `json2 = jsonlite::fromJSON(toJSON(json1))` = converts data back into JSON format and then use the `fromJSON` function from the `jsonlite` package to read the data into a data frame
+    * each row corresponds to a line of the data you received
+
+* **GitHub example ([tutorial](https://github.com/hadley/httr/blob/master/demo/oauth2-github.r))**:
+*may need to run the code in the base R package and not R studio*
+    * `library(httr)`
+    * `myapp <- oauth_app("github", key = "clientID", secret = "clientSecret")`
+  	* an application must be registered with GitHub first to generate the client ID and secrets
+    * `github_token <- oauth2.0_token(oauth_endpoints("github"), myapp)`
+		* `oauth_endpoints()` = returns the the authorize/access url/endpoints for some common web applications (GitHub, Facebook, google, etc)
+		* `oauth2.0_token(endPoints, app)` = generates an oauth2.0 token with the credentials provided
+    * `gtoken <- config(token = github_token)` = sets up the configuration with the token for authentication
+    * `req <- with_config(gtoken, GET("https://api.github.com/rate_limit"))` = executes the configuration set to send a get request from the specified URL, and returns a response object
+    * `library(jsonlite); json1 <- fromJSON(toJSON(content(req)))` = converts the content of the response object, to JSON format, and converts it again to data frame format
+    * `names(json1)` = returns all the column names for the data frame
+    * `json1[json1$name == "datasharing",]$created_at` = returns the create date for the data sharing repo
+    
+    ## Reading from Other Sources
+* **interacting directly with files**
+    * `file` = open a connection to a text file
+    * `url` = opens a connection to a URL
+    * `gzfile/bzfile` = opens a connection to a .gz/.bz2 file
+    * `?connections` = for more information about opening/closing connections in R
+* **`foreign` package**
+    * loads data from Minitab/S/SAS/SPSS/Stat/Systat
+    * basic functions
+  	* `read.arff` (Weka)
+		* `read.dta` (Stata)
+		* `read.mtp` (Minitab)
+		* `read.octave` (Octave)
+		* `read.spss` (SPSS)
+		* `read.xport`  (SAS)
+		* `read.fwf` (fixed width files, [.for])
+		* *example*: `data <- read.fwf(file = "quiz02q5.for", skip = 4, widths = c(-1, 9,-5, 4, 4, -5, 4, 4,-5, 4, 4,-5, 4, 4))`
+		* `widths = c()` = specifies the width of each variable
+		* the negative numbers indicate the space to disregard/take out
+* **Other packages/functions**
+    * `RPostresSQL` = provides DBI-compliant database connection from R
+    * `RODBC` = provides interfaces to multiple databases including PostgreQL, MySQL, Microsoft Access, SQLite
+    * `RMongo/rmongodb` = provides interfaces to MongoDb
+		* similar to MySQL, except send queries in the database's syntax
+    * reading images (functions)
+		* `jpeg`, `readbitmap`, `png`, `EBImage` (Bioconductor)
+    * reading (GIS Geographical Information Systems) data (packages)
+		* `rdgal`, `rgeos`, `raster`
+    * reading music data (packages)
+		* `tuneR`, `seewave`
+
+```{r}
+fruit <- c("apple", "pear", "mango") # character vector.
+price <- c(30, 30, 90) # numeric vector
+price
+```
+
+fileUrl <- "http://bulbapedia.bulbagarden.net/wiki/List_of_Pok%C3%A9mon_by_National_Pok%C3%A9dex_number"
+doc <- htmlTreeParse(fileUrl, useInternal = TRUE)
+rootNode <- xmlRoot(doc)
+
+scores <- xpathSApply(doc, "//td", xmlValue)
+head(scores)
+scores[[5]]
+sapply(scores, FUN = function(x) x[3])
+scoresdf<- data.frame(scores)
+sb <- scoresdf[3:754,]
+sb<-data.frame(sb)
+names(scores)
+
+tb <- readHTMLTable(fileUrl)
+head(tb)
+head(tb[[2]])
+dt_1 <- tb[[2]]
+head(tb[[2]][[5]])
+table(tb[[2]][[5]])
+
+fileUrl<- "http://bulbapedia.bulbagarden.net/wiki/List_of_Pok%C3%A9mon_by_base_stats_(Generation_I)"
+tb2 <- readHTMLTable(fileUrl)
+head(tb2)
+dt_2 <- tb2[1]
+dt_2<- data.frame(dt_2)
+colnames(dt_1)[4] <- c("name")
+colnames(dt_2)[3] <- c("name")
+
+merged <- merge(dt_1, dt_2, by.x = "id")
+
+library(plyr)
+joined <- join(dt_2[,1], dt_1[,1])
+
+## Subsetting data
+
+* **Subsetting data by index**
+  * `df[var_index, col_index]` 
+  * `df[1:5,]` = view the first 5 rows.
+  * `df[:2]` = view the second column.
+  * `df[1:5, 2]` = view the first 5 rows and the second column. 
+* ** Subsetting data by logic**
+  * `df[(df$V1 <= 3 & df$V2 > 5)]` = find only the data in var1 which is less than or equal to 3 `AND` more than 5 for var 2. Results in dataframe where `ALL` conditions are satisfied.
+  * `df[(df$V1 == 3) | (df$V2 == 9)]` = find the data which is equal to 3 for variable 1 `OR` equal to 9 for variable 2. Results in dataframe where `BOTH` or `EITHER` condition is satisified. 
+* **Subsetting data with NAs**
+  * `df[which(df$V1 > 8)]` = find data in variable 1 which is bigger than 8, even with NA.
+      * `which` = subset data even if there is NAs. 
+* **Subsetting data by condition** ([tutorial](https://stackoverflow.com/questions/33651477/subsetting-a-dataframe-by-a-condition-in-r?noredirect=1#33651536))**:
+  * `which(df$V1 == 4)` = subset first column where `rows` == condition. Output is a `integer vector`.
+  * `subset(df, V1 == 4)` = same as above but output is a `data.frame`
+  * `df[df$V1 == 4,,drop=F]` = same output as `subset`. 
+
+## Sorting data ([tutorial](https://github.com/thoughtfulbloke/faoexample)):
+
+* **add column**
+  * `df$newcolumn <- data`
+  * `df$game <- "zelda"` add new column `game` with `zelda` for it's value.
+
+* **Ordering data**
+  * `df[order(df$V1),]` = order all rows by Variable 1.
+  * `df[order(df$V1, df$V2),]` = If variable one has duplicate numbers: order all rows by Variable 1 first, then order duplicates by Variable 2.
+  * `sort(df$V1, decreasing = T, na.last = T)`
+    * `na.last` = order data so NAs appear at the bottom.
+  * `library(plyr)`
+    * `arrange(df, V1)` = order all rows by variable 1. 
+  
+* **Merging data** ([tutorial](https://github.com/thoughtfulbloke/faoexample))**: = both datasets need a shared value they can merge too. Such as country name. 
+  * `df1 <- read.csv("data1")`
+  * `df2 <- read.csv("data2")`
+  * `merge( x = df1, y = df2, by.x, by.y, all)` = good for merging datasets with diff col names. Not good for merging multiple datasets together.
+      * `by.x, by.y` = merge data by columns of df1 or df2.
+      * `all` = include var names/cols that only appear in one data set. I.e. if you only have data on `oranges` for India but not `apples`. 
+      * `merge(df1, df2, by="V1")`
+  * `intersect(names(df1), names(df2))` = find common column names between two datasets.
+  * `library(plyr)` = good for merging multiple dataframes via `joinall()`. Not good fo merging datasets with different col names.   
+      * `joined <- join(df2[,1], df1[,1])`
+      * faster but only works with columns that have the same name. `Merge()` can join by columns with different names.
+      * `dfList = list(df1, df2, df3); join_all(dfList)` = joins together a list of data frames using the common columns
+
+```{r}
+country <- c("china", "afghanistan")
+food <- c("apple", "orange")
+df <- data.frame("V1"= rep(country, 2), "V2"= rep(food, each = 2))
+df
+merge(df[1:2,], df[3:4,], by="V1")
+```
+
+  * `library(reshape2)`
+      * `dcast(df[,colindex], formula = colkeep1 + colkeep2 ~ colsplit, value.var = "value")` 
+      * `df[,colindex]` = the columns to keep and column to split. 
+      * `formula = colkeep1 + col..etc` = the columns to keep.
+      * `~ colsplit` = column to split into seperate variables
+      * `value.var` = column with values for split column
+      
+```{r}
+df <- data.frame("country"= rep(country, 2), "food"= rep(food, each = 2), "tonnes" = sample(1:10, 4))
+df
+library(reshape2)
+dcast(df[,1:3], formula = country ~ food, value.var = "tonnes")
+```
+* **Appending data**
+    * `rbind(df,df2)` = vertically bind
+    * `cbind(df,df2)` = horizontally bind
+
+* **Aggregating data** 
+
+## Summarising data
+
+  * `head(df, 10)` / `tail(df, 10)` = print top/bottom ten rows of data.
+  * `summary(df)` = general summary of data: Information on each var.
+      * for `factors variables`, the summary table will display count of the top 6 values
+      * for `numeric variables`, the summary table will display min, 1st quantile, median, mean, 3rd quantile, max      
+  * `str(df)` = info on structure: class of obj. dims. class of each col. 
+  * `quantile(df, na.rm = T)` = displays the specified quantile of the variable
+  * `table(x = df$v1, y = df$v2, useNA="ifany")` = frequency table of data values.
+      * `useNA="ifany")` =  creates extra column for any missing values.
+      * ` x =..., y =...` create table with two variables 
+        * `table(df$food, df$country)`
+  * **Check for missing values**
+      * `sum(is.na(variable))` = TRUE = 1 FALSE = 0, so 0 = no missing values
+      * `any(is.na(variable))` = returns TRUE/FALSE if there is any NAs in variable. 
+      * `all(variable >0)` = check all values of variable agaisnt some condition. and return TRUE/FALSE
+  * **Row and column sums**
+      * `colSums/rowSums(is.na(df))` = returns the amount of missing NAs for each column of the dataframe. 
+      * `all(colsums(is.na(df))==0)` = returns TRUE if there is no NAs for every column in the dataset. 
+  * **Search values for specific characteristics**
+      * `table(variable %in% c("str1", "str2"))` = returns a FALSE/TRUE table that counts how many values from the data frame variable contains the specified values in the subsequent vector
+         * Useful for checking variables for multiple vectors.
+      * `df[df$var1 %in% c("str1", "str2"),]` =  subsets rows from the data frame where the var1 == str1 or str2
+  * **Crosstabs**
+      * `xt <- xtabs(var1 ~ var2 + var3, data = df)` = returns table displaying relationship between variables.
+      * `var1` = data values to display
+      * `var2 + var 3...` = variables to break down var1 by.
+      * `xt2 <- xtabs(var1 ~ ., data = df)` = cross-tabulate variable 1 with all other variables, creates multiple two dimensional tables
+      * `xt <- xtabs(Generation <- Gender + Type, data = Pokedex)` = Shows amount of Pokemon in each generation by gender and type. 
+      * `ftable(xt)` = summarises data into a tidy/compact flat-table format. Useful if variable is broken down by multiple vars making it difficlult to see.
+      
+|        | Fire     | Water    |
+---------|----------|----------|
+| Male   |   1198   |   1493   |
+| Female |    557   |   1278   |
+
+* **size of data set**
+    * `object.size(obj)` = returns size of object in bytes
+    * `print(object.size(obj), units = "Mb"` = prints size of object in Mb 
+
+## Creating new variables
+
+* **Creating sequences** = sequences can be used to a create an index for your data to loop functions over or to subset the data by.
+    * `s1 <- seq(1,10,by=2)` = creates a sequence from 1:10 by intervals of 2
+    * `s2 <- seq(1,10,length=3)` = use length argument to specify how many numbers to generate. I.e. a sequence with 3 values which starts at 1 and ends at 10.
+    * `s3 <- seq(along = x)` = creates as many elements as x. i.e. create a sequence the same length as x but with consecutive indices. 
+          * `x <- c(1,3,60,2,567)` = a vector with 6 values
+          * `print(s3): 1 2 3 4 5 6` = consecutive index with 6 values 
+* **Subsetting variables**
+    * `restData$nearMe = restData$town %in% c("Pallet", "Cerulean")` = creates a new variable `nearMe` that returns TRUE if the town value is Pallet or Cerulean, and false otherwise. 
+* **Creating binary variables**
+    * `pokemon$glitch <- ifelse(pokemon$lv > 100, TRUE, FALSE)` = creates a new variable `glitch` that returns TRUE if the pokemon level is above 100 and false otherwise; finding glitched pokemon. 
+* **Create categorical data** = creates categorical variables by splitting data into groups.
+    * `restData$zipGroups = cut(restData$zipCode, breaks = quantile(restData$zipCode)` = creates new variable `zipGroups` that specify ranges for the zip code data such that the observations are divided into groups created by the quantile function
+  	* `cut(variable, breaks)` = cuts a variable/vector into groups at the specified breaks
+* ***Note**: class of resultant variable = factor *
+  	* `quantile(variable)` = returns 0, .25, .5, .75, 1 by default and thus
+provides for ranges/groups for the data to be divided in
+    * using `Hmisc` package
+    * `library(Hmisc)`
+		* `restData$zipGroups = cut2(restData$zipCode, g = 4)`
+		* `cut2(variable, g=4)` = automatically divides the variable values into 4 groups according the quantiles
+		* ***Note**: class of resultant variable = factor *
+* **factor variables**
+    * `pokemon$idf <- factor(pokemon$level)` = turns exisiting vector to factor variable. Shows there is 151 levels.
+      	* `levels = c("yes", "no")` = use the levels argument to specify the order of the different factors
+		    * ***Note**: by default, converting variables to the factor class, the levels will be structured alphabetically unless otherwise specified *
+    * `as.numeric(factorVariable)` = converts factor variable values into numeric by assigning the lowest (first) level 1, the second lowest level 2, ..., etc.
+* **mutate variable** = create new variable and adds to dataframe simulatenously
+    * using `plyr` and `Hmisc` packages
+    * `library(plyr); library(Hmisc)`
+    * `readData2 <- mutate(restData, zipGroups = cut2(zipCode, g = 4)`
+  	* this creates `zipGroups` and splits the data from `zipCode` all at the same time
+* **common transforms**
+    * `abs(x)` = absolute value
+    * `sqrt(x)` = square root
+    * `ceiling(x)`, `floor()` = round up/down to integer
+    * `round(x, digits = n)` = round to the number of digits after the decimal point. 
+        * `round(3.475,digits=2)` is 3.48
+    * `signif(x, digits = n)` = round to the number of significant digits
+        * `signif(3.475, digits = 2)` is 3.5
+    * `cos(x)`, `sin(x)`, `tan(x)` ... etc = trigonometric functions
+    * `log(x)`, `log2(x)`, `log10(x)` = natural log, log 2, log 10
+    * `exp(x)` = exponential of x
+
+## Reshaping data
+
+* **reshape2** 
+  * `melt(df, id = c("v1", "v2"), measure.vars=c("v3", "v4"))` = keeps ID variables and melts rest of columns into one column. Creates a long and skinny data, where there is only 1 row for `v3` and 1 row for `v4`.
+      * `id` = columns that are kept. 
+      * `measure.vars` = variables that will melt into one column.
+      * `dfmelt<- melt(df, id = c("name", "trainer"), measure.vars=c("level", "type"))`
+
+```{r, echo=FALSE, warning=FALSE}
+df <- data.frame("name"= c("Pikachu", "Staryu", "Caterpie"), "trainer"= c("Ash", "Misty", "Ash"), "level" = c(5,20,14), "type" = c("electric", "water", "grass"))
+df
+library(reshape2)
+dfmelt<- melt(df, id = c("name", "trainer"), measure.vars=c("level", "type"))
+dfmelt
+```
+
+* `dcast(df, col~variable)` = reshape the melted data. All vars to the left of `~` are put into the rows, all vars right of the `~` are made into columns. Col broken down by different variables. 
+    * `col` = the columns you want to keep/ the rows.
+    * `variable` = the columns you want split / the columns.
+    * By default summarises the data by length. I.e. there are 2 observations of `level` and `type` for `Ash` and one observation of each for `Misty`.
+    
+```{r]}
+dcast(dfmelt, trainer~variable)
+dcast(df, name~trainer, value.var = "level", mean)
+```
+
+* **Calculating factor sums**
+    * **method 1**: `tapply(value = v1, index = v2, function = fun)` = apply a function to `value` along an `index`. Split `v1` values by `v2` groups and run a function across each group.   
+      * `tapply(df$level, df$trainer, mean)` = apply mean to `level` along the index `trainer`. I.e. Splits the pokemonlevel values by trainer groups and calculates the mean of each group.
+
+    * **method 2**: split-apply-combine
+    * `x <- split(val = df$level, by = df$trainer)` = create list of Pokemon `levels` split by `trainer` groups. Returns list of values into groups by spray. 
+    * `lapply(x, mean)` = find average of each element in list / apply sum for all of the groups and return a list.
+* ***Note**: class of resultant variable =  list* 
+      * To return the list to a vector use unlist(). Or use `sapply` with split, which runs a function and returns result as a vector.
+    * **method 3**: sapply(apply+combine)
+    * `sapply(x, mean)` = runs a function and returns a vector. Combining the `apply` and `unlist` functions into one.
+
+    * **method 4**: Plyr package
+    * `ddply(dataframe, .(variables), method, function) ` = take df, split, apply function and combine results, return df.
+  	* `dataframe` = data being processed
+		* `.(variables)` = variables to group/summarize by. Use of `.` allows variables to be used without quoting.
+		* `method` = can be a variety of different functions defined within the ply package, mutate, summarize, arrange, filter, select, etc.
+		* `function` = how the data is going to be calculated
+		* *example*: `ddply(df, .(trainer),summarize,mean=mean(level))`
+
+```{r, echo=FALSE, warning=FALSE}
+library(plyr)
+ddply(df, .(trainer),summarize,mean=mean(level))
+```
+
+    * `ddply(iris, .(Species), numcolwise(mean))` = runs a summary across all numeric columns. Result is dataframe with mean of each col.
+          * `.(Species)` = variable to group data by.
+    * `spraySums<- ddply(InsectSprays, .(spray), summarize, sum = ave(count, FUN = sum))` = creates a data frame (2 columns) where each row is filled with the corresponding spray and sum (repeated multiple times for each group)
+    * the result can then be used and added to the dataset for analysis
+    * Other useful plyr func
+        * `arrange` = fast reodering without `order()`
+        * `mutate` = add new variable. I.E. Add summarised data to dataset.
+
+## Managing data with dplyr
+
+* **features**
+    * can use column names without $ operator.
+    * takes dataframe, returns dataframe
+    * quick as it is coded in c++
+    * doesn't add new features, but re-uses exisiting base features.
+* **verbs**
+    * `select` = select subset of columns from dataframe using variable names.
+        * `select(df, col1:col5)` = will select all cols between 1 and 5
+        * `select(df, -(co1:col5)` = all cols except those between 1 and 5
+    * `filter` = subset rows by logical expression. 
+        * `filter(df, col1 > 10 & col2 > 5)`
+    * `arrange` = order df according to variable. 
+        *`arrange(df, desc(col1))` = arrange df by col1. `desc` = descending order. 
+    * `rename` = rename variables.
+        * `rename(df, newname = col1, coolname = col2)` = renames `col1` to `newname` and `col2` to `coolname`. 
+    * `mutate` = add new variable or edit existing. 
+        * `mutate(df, col1mean = mean(col1))` = adds var `col1mean1` which contains mean of `col1`.
+    * `summarize()` = collapses the dataset into a single row
+  	      * *example*: `summarize(dataFrameTable, avg = mean(size))` = returns the mean from the column in a single variable with the specified name
+		      * summarize()can return the requested value for each group in the dataset collapses the dataset into a single row
+          * ***Note**: `n()` = counts number of observation in the current group *
+    * `group_by` = split data by categorial/factor variables. First create category/factor variable using `mutate` and `factor`, then split data frame by those categories using `group_by` and finally summarise to make it more meaningful using `summarise`. 
+          * `df <- mutate(df, lvCat = factor(1 *(lv > 40), labels = c("weak", "strong")))` = create `pokemon level` category variable for `strong` and `weak` pokemon. All pokemon above level 40 are strong. 
+          * `strongweak <- group_by(df, lvCat)` = create new df `strongweak` which is grouped by strong and weak pokemon. 
+          * `summarise(strongweak, wt = mean(weight), atk = max(attack), spl = median(special))` = summarise data to show the mean weight, max attack and median special for each group (instead of 1 value from the `summarize()` example above). I.E. it could show that weak pokemon have a lower weight attack and lower max attack, where as strong pokemon weigh more and have a stronger attack. 
+          **example 2** summarise by year [example on coursera. week3.]     
+		* ***Note**: `n_distinct()` = efficiently count the number of unique values in a vector *
+		* ***Note**: `quantile(variable, probs = 0.99)` = returns the 99% percentile from the data *
+		* ***Note**: by default, `dplyr` prints the first 10 rows of data if there are more than 100 rows; if there are not, it will print everything *
+    * `rbind_list()`
+		* bind multiple data frames by row and column
+		* *example*: `rbind_list(passed, failed)`
+        
+
+* **Chaining/Piping**
+    * allows chaining multiple commands/functions together.
+    * removes the need for temporary variables to input into each function. 
+  	* ***Note**: all variable calls refer to the tbl_df specified at the same level of the call *
+    * `%>%` = chaining operator
+		* ***Note**: `?chain` brings up relevant documentation for the chaining operator *
+		* Code on the right of the operator operates on the result from the code on the left
+		* `exp1 %>% exp2 %>% exp3 ...`
+			* `exp1` is calculated first
+			* `exp2` is then applied on exp1 to achieve a result
+			* `exp3` is then applied to the result of that operation, etc.
+		* ***Note**: the chaining aspect is done with the data frame table that is being passed from one call to the next *
+		* ***Note**: if the last call has no additional arguments, `print()` for example, then it is possible to `leave()` off *
+    * **example** = using the `pokedex df` to do the group_by/summarise example above without the need of temp variables. Summarise pokemon by `type`. 
+    * `pokedex %>% mutate(typeCat = factor(type)) %>% group_by(typeCat) >%> summarise(wt = mean(weight), atk = max(attack))` = find the mean weight and max attack for each pokemon type. Is fire type heavier and stronger than water? 
+
+## tidyr
+* `gather()`
+    * gather columns into key value pairs
+    * *example*: `gather(students, sex, count, -grade)` = gather each key (in this case named sex), value (in this case count) pair into one row
+  	* effectively translates to (columnName, value) with new names imposed on both = all combinations of column name and value
+		* `-grade` = signifies that the column does not need to be remapped, so that column is preserved
+		* `class1:class5` = can be used instead to specify where to gather the key values
+* `separate()`
+    * separate one column into multiple column
+    * *example*: `separate(data = res, col = sex_class, into = c("sex", "class")` = split the specified column in the data frame into two columns
+		* ***Note**: the new columns are created in place, and the other columns are pushed to the right *
+		* ***Note**: `separate()` is able to automatically split non-alphanumeric values by finding the logical separator; it is also possible to specify the separator by using the `sep` argument *
+* `spread()`
+    * spread key-value pairs across multiple columns = turn values of a column into column headers/variables/new columns
+    * *example*: `spread(students3, test, grade)` = splits "test" column into variables by using it as a key, and "grade" as values
+		* ***Note**: no need to specify what the columns are going to be called, since they are going to be generated using the values in the specified column *
+		* ***Note**: the value will be matched and split up according their alignment with the key ("test") = midterm, A *
+* `extract_numeric()`
+    * extract numeric component of variable
+    * *example*: `extract_numeric("class5")` = returns 5
+    * *example*: `mutate(class = extract_numeric(class))` = changes the class name to numbers only
+* `unique()` = general R function, not specific to tidyr
+    * returns a vector with the duplicates removed
+* ***Note**: when there are redundant information, it's better to split up the info into multiple tables; however, each table should also contain primary keys, which identify observations and link data from one table to the next *
+
+
+
+$\pagebreak$
+
+## lubridate
+* consistent, memorable syntax for working with dates
+* `wday(date, label = TRUE)` = returns number 1 - 7 representing Sunday - Saturday, or returns three letter day of the week if label = TRUE
+* `today()`, `now()` = returns the current date and time, with extractable parts (hour(), month())
+    * `tzone = "America/New_York"` = used to specify time zones (list [here](http://en.wikipedia.org/wiki/List_of_tz_database_time_zones))
+* `ymd("string")` = converts string in to year month day format to a POSIXct time variable
+    * `mdy("string")` = parses date in month day year format
+    * `dmy(2508195)` = parses date in day month year format using a number
+    * `ymd_hms("string")` = parses the year month day, hour minute second
+    * `hms("string")` = parses hour minute second
+		* `tz = ""` = can use the "tz" argument to specify time zones  (list [here](http://en.wikipedia.org/wiki/List_of_tz_database_time_zones))
+    * ***Note**: there are a variety of functions that are available to parse different formats, all of them are capable of converting the correct information if the order of month year day is correct *
+    * ***Note**: when necessary, `//` or `—` should be added to provide clarity in date formatting *
+* `update(POSIXct, hours = 8, minutes = 34, seconds = 55)` = updates components of a date time
+    * ***Note**: does not alter the date time passed in unless explicitly assigned *
+* arithmetic can be performed on date times by using the `days()` `hours()` `minutes()`, etc. functions
+    * *example*: `now() + hours(5) + minutes(2)` = returns the date time for 5 hours and 2 minutes from now
+* `with_tz(time, tone ="")` = return date-time in a different time zone
+* `as.period(new_interval(last_time, arrive))` = return the properly formatted difference between the two date times
+
+
+## Cleaning data
+
+* **add descriptive column names**
+    * `names(df) <- c("HP", "Level", "Trainer")` 
+    * `names(df) [3] <- "food"` = change just name of third element
+    * `label <- c("HP", "Level", "Trainer")` = same as first example but using object. 
+      * `names(df) <- label`
+    * if errors occur make sure `label` object is `chr` and not `factor`. When importing labels this can be done using `stringsAsFactors = F`.
+* **edit variable values** ([tutorial](https://stackoverflow.com/questions/5612821/replace-specific-column-words-into-number-or-blank)): = i.e. replace text with number
+    * `within(df, variable <- change)` = change the values within a chosen column by converting to a factor.
+      * `variable` = column name. I.e. Month or Temp. 
+      * `change` = the change to be made. `<- rm(January)` remove all values with "January". `Temp / 2` divide temperature vals by 2.  
+  
+```{r}
+# Replace apples with ones and oranges with twos. 
+df <- data.frame("country"= rep(country, 2), "food"= rep(food, each = 2), "tonnes" = sample(1:10, 4))
+df$food <- with(df, food <- factor(food, labels = c(1,2)))
+df
+```
+  
+* **Clean up text**
+    * `gsub("delete", "replace_with", txt)`
+    * `txt <- c("I wanna be the very best")`
+    * `gsub("best", "worst", txt)` = replace `best` with `worst`
+    * `txt <- gsub("\xca", "", txt)` = remove unrecognised character `�` and replace with space.
+  
+* **Remove lines/rows**
+    * `df[(-1 * rowindex),]` = remove rows
+    * `df[,(-1 * colindex)]` = remove columns
+    * `rowindex <- which(df$food == "chocolate pudding")` = find all lines with the word "chocolate pudding" and remove.
+
+* **Remove NAs**
+    * `na.omit(x)` wraparound function. 
+        * `na.omit(head(x))` 
+
+## Editing Text Variables
+
+* **Fixing character vectors** = editing upper/lowercase characters
+    * `tolower/toupper(names(data))` = make  all the letters within the names of a df to lowercase/uppercase.
+    * **example** remove periods from variable names.   
+    * `splitnames <- strsplit(names(df),"\\.")` = Returns list of split variable names which are seperated with a point. I.e. `location.1` to `location` `1`. 
+        * `"\\."` = need break characters `\\` because the `period` is a reserved character. 
+        * can then go through df and subset out the part of the variable name that does not have the dot in it. I.e get `location` and exclude `1`.
+    * `FirstElement <- function(x){x[1]}` = function which returns first element/item of each vector. 
+    * `sapply(splitnames, FirstElement)` apply func `FirstElement` to each item in the `splitnames` list, to return only the first vectors. I.e. if splitnames[4] contains two items `location`, `1`, get `location` and exclude `1`.
+    * `sub(replace, with, df)` = sub a character with something else.
+        * `sub("_", "", names)` = sub `underscore` from names with `nothing`. i.e. `fire_type` to `firetype`. 
+        * ***note* `sub` only replaces the first instance. i.e. `fire_type_are_fun` to `firetype_are_fun`, replaces the first underscore only.
+    * `gsub("_", "", names` = replace all instances of a character. i.e. `fire_type_are_fun` to `firetypearefun`, replaces all the underscores.
+    
+* **Finding values**
+  * `grep("string", df$col)` = find intances which match value/string
+      * `grep("cowboys", df)` = find all rows where values matches `cowboy`
+      * `grep("cowboys", df, value = T)` = `value = T` returns the actual value where `cowboy` appears instead of telling you where.
+      * `length(grep("cowboys, df$col1")` = check if value does not appear. If result = 0, then value does not exist in vector.
+  * `grepl` = returns True/False for matches. 
+      * `table(grepl("cowboys", df))` = return T/F tab11le 
+      * `df[!grepl("cowboys", df)]` = subset data where `cowsboys` does `not` occur.  
+* **library(stringr)**
+  * `nchar("Prem Gill")` = number of characters that appear in a string
+  * `substr("Prem Gill",1,4)` =  returns a substring of the specified beginning and ending characters. Returns first 4 values `Prem`. 
+  	* ***Note**: R is uses 1 based indexing system, which means the first character of the string = 1 *
+		* ***Note**: substring returns a string that includes both first AND last letters and everything inbetween *
+  * `paste("Prem", "Gill", sep = ...)` = paste two strings together. 
+      * `sep` = default seperates with space. Can change using sep agr
+  * `paste0("Prem", "Gill")` = string together without any spaces. `PremGill`. 
+  * `str_trim("   Prem   ")` = trim of any extra space at the end or beginning of a str. Returns `Prem` instead of ` Prem `. 
+
+* **Style for text in data**
+  * names of variables  should be
+    * all lower case when possible
+    * Descriptive (atk vs attack)
+    * Not Duplicated
+    * Not have underscores or dots or white spaces
+  * variables with character vectors
+    * should usually be made into a factor var (depends on application)
+    * should be descriptive (Use TRUE/FALSE instead of 1/0 and Male/Female instead of M/F or 1/0)
+
+## Regular Expression
+* **RegEx** = combination of literals and metacharacters
+* used with `grep/grepl/sub/gsub` functions or any other that involve searching for strings in character objects/variables
+* **metacharacters and literals**
+    * literals = words. Find whole lines.
+    * metacharacters = grammar. Refines `literal` searches.
+* **literals**
+    * `literals` are any word which you wish to find. 
+    * searching by `literals`will return any line which contains the `literal` word.
+
+```
+Would the real Slim Shady please stand up, please stand up, please stand up.
+
+I said would the real Slim Shady please stand up, please stand up.
+
+Now I'm the real Slim Shady...
+```  
+ * Searching by literal `slim` would return every sentence. 
+ * if you want to refine it by say, only the word "slim" or "sli" or sentences that end with "shady", use metacharacters.
+
+* **metacharacters**
+    * `^` = start of the line (metacharacter)
+      * *example*: `^text` matches lines such as "text ..."
+    i think` = return every line that starts with `i think`. 
+    * `$` = end of the line (metacharacter)
+      * *example*: `morning$` = return every line that ends with `morning`. 
+    * `[]` = set of characters that will be accepted in the match (character class)
+      * *example*: `^[Ii]` matches lines such as "I ..." or "i ...".`[Bb][Uu][Ss][Hh]` = will match all versions of `bush` regardless of upper or lower case characters. `Bush`, `bush`, `BUsH`...etc.     
+    * combine metacharacters
+      * *example*: `^[Ii] am` = return every line that start with `I am`/`i am`
+    * `[0-9]` = searches for a a range of characters (character class)
+        * `[a-b] metacharacter` = range.
+        * `^[1-9[a-zA-Z]` = return any line that starts with a number within the range of 1-9 followed by a character within a-z/A-Z. `1st sign`, `2nd challenger has appeared` 
+    * `[^?.]$` = return any line that does NOT end with a question mark or full stop. `Stop him!`, `Jelly? Hmm`, `Pichu fainted. Oh no!`  
+          * `^ metacharacter` = matching characters NOT in the indicated class. `[^b]$` = any sentence that does not end in b.
+    * `. metacharacter` = any character. 
+        * *example*:`9.11` = return any line that contains a `9` followed by `ANY character` then `11`. `I work 9/11`, `my number is 078911`, `Pulse Rate: 9.11`.
+        * `a.b` = `a` and `b` seperated by any character.
+    * `| metacharacter` = alternatives.
+        * *example*: `flood|fire` = return any line that contains `fire` or `flood`.     
+          * `flood|fire|thunder|tsunami` = can include any number of alternatives. Will match all four alternatives.
+          * alternatives can be `expressions` and not just `literals`.
+          * `^[Gg]ood|[Bb]ad` = will return lines that match expression (that begin with `good` and have `bad` anywhere in the line). `Good afternoon`, `I have a bad stomach ache`. 
+          * `yellow|sword|ruby` = will return lines that match literals. `Pokemon Yellow is my favourite`, `Pull out the sword Arthur!`.
+          * `^([Gg]ood|[Bb]ad)` = any line that starts with good or bad. Parathesis constrain alternatives. 
+    * `? metacharacter` = optional character. 
+        * `[Gg]eorge ([Ww]\.)? [Bb]ush` = any line that contains `george bush` and optionally `W.`. I.E. all lines with `george bush` and any line that contains `george w. bush`. `George W. Bush is a dictator`, `"Let's fight" said george bush`.
+        * ***note**: `([Ww]\.)?`. blackslash is to escape dot metacharacter, so it knows to include the dot in the search. Do not consider dot as metacharacter, consider it as a literal dot.
+    * `*` = any number of repetition, including none = 0 or more of some character/expression (metacharacter)
+        * *example*: `.*` matches anything combination of characters. `Wanna chat? (23, M, Reading)`,'(I pooped myself)` or `()` which is nothing between paranthesis i.e. no repition at all
+        * ***Note**: `*` is greedy = always matches the longest possible string that satisfies the regular expression *
+      	  * greediness of `*` can be turned off with the `?`
+    		  * *example*: `s.*?s` matches the shortest "s...s" text. `sitting at starbucks`. 
+    * `+ metacharacter` = at least one or more of the item. 
+        * *example*: `[0-9]+ (.*) [0-9]` = number followed by at least one or more characters and then another number. `it's time 4 me to go 2 bed`, `You've only spoken to 4 or 5 Dragons, Master Ged`. Looks for any combination of number followed by a character then a number. 
+* `{m, n}` = interval quantifier, allows specifying the minimum and maximum number of matches (metacharacter)
+    * `m` = at least, `n` = not more than
+    * `{m}` = exactly `m` matches
+    * `{m, }` = at least m matches
+    * *example*: `Bush( +[^ ]+ +){1, 5} debate` debates matches "Bush + (at least one space + any word that doesn’t contain space + at least one space) this pattern repeated between 1 and 5 times + debates". The word bush with debate with 1-5 words between.
+    * `bush won the debate`
+    * `Bush should have taken the debate more seriously`. 
+    * *example2*: `Ged( +[^ ]+ +){1, 5} magic`. The word Ged and magic with 1-5 words between. `Ged wanted more magic power`, `Ged set down the book of magic and runes`. 
+* `()` = define group as the the text in parentheses, groups will be remembered and can be referred to by `\1`, `\2`, etc.
+    * *example*: `([a-zA-Z]+) +\1 +` matches "any word + at least one space + the same word repeated + at least one space" = "night night", "so so", etc.
+
+## Working with dates
+
+* `date()` = returns current date in character format
+* `Sys.Date()` = returns the current date in Date format
+* `format(object, "format")` = formats object in specified format
+    * when object = Date, then we can use any combination of the following
+    * `%d` = day as number (0-31)
+		* `%a` = abbreviated weekday
+		* `%A` = unabbreviated weekday
+		* `%m` = month (00-12
+		* `%b` = abbreviated month
+		* `%B` = unabbreviated month
+		* `%y` = 2 digit year
+		* `%Y` = 4 digit year
+    * *example*: `format(Sys.Date(), "%a %b %d")` = returns "Sun Jan 18"
+* `as.Date("character", "format")` = converts character vector/variable into Date format by using the codes above
+  * *example*: `z <- as.Date("1jan1960", "%d%b%Y")` = creates a Date of "1960-01-01"
+* `Date1 - Date2` = prints the difference between the dates in this format "Time difference of n days"
+  * *example*: z <- 
+    * `as.numeric(Date1 - Date2)` on this result will print/store n, the numeric difference. Return numeric variable for differene in days.
+* `weekdays(Date)`, `months(Date)` = returns the weekday/month of the given Date object
+* `julian(Date)` = converts the Date, which is the number of days since the origin
+    * `attr(, "origin")` = prints out the origin for the julian date format, which is 1970-01-01
+* `lubridate` package [`library(lubridate)`] = see lubridate section
+    * `?Sys.timezone` = documentation on how to determine/set timezones
+* Ultimately you want dates to be in class "Date" or classes "POSIXct", "POSIXlt".
+
+## Data Sources
+* Open Gov sites
+    * `UN` = data.un.org
+* Gapminder
+* Kaggle = data competitions. Good for practise.
+* dedicated packages for facebook, googlemaps, twitter etc.

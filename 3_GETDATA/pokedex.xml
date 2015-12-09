@@ -1,0 +1,16 @@
+<pokedex> 
+  <party> 
+    <name>Squirtle</name>
+    <level>10</level>
+    <type>Water</type>
+    <move number="1">tackle</move>
+    <move number="2">bubble</move>
+  </party>
+  <party>
+    <name>Charmander</name>
+    <level>10</level>
+    <type>Water</type>
+    <move number="1">scratch</move> # 'move' tag with 'number' attribute
+    <move number="2">ember</move>
+  </party>
+</pokedex>
