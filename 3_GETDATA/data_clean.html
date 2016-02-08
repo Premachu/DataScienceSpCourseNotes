@@ -83,7 +83,7 @@ img {
 <li><a href="#reading-excel-files">Reading Excel Files</a></li>
 <li><a href="#reading-xml-files">Reading XML Files</a></li>
 <li><a href="#reading-json">reading JSON</a></li>
-<li><a href="#reading-data-from-the-web-webscraping">Reading data from the web / webscraping</a></li>
+<li><a href="#reading-data-from-the-web-webscraping-tutorial-httpsdrive.google.comfiled0b1ydo4ynmkaxd3duclrluws2eeuviewuspembed_facebook">Reading data from the web / webscraping [tutorial] (<a href="https://drive.google.com/file/d/0B1YdO4YnMkAxd3dUclRLUWs2eEU/view?usp=embed_facebook" class="uri">https://drive.google.com/file/d/0B1YdO4YnMkAxd3dUclRLUWs2eEU/view?usp=embed_facebook</a>)</a></li>
 <li><a href="#reading-apis">Reading APIs</a></li>
 <li><a href="#subsetting-data">Subsetting data</a></li>
 <li><a href="#sorting-data-tutorial">Sorting data (<a href="https://github.com/thoughtfulbloke/faoexample">tutorial</a>):</a></li>
@@ -239,8 +239,8 @@ rootNode &lt;-<span class="st"> </span><span class="kw">xmlRoot</span>(doc)
 </ul></li>
 </ul>
 </div>
-<div id="reading-data-from-the-web-webscraping" class="section level2">
-<h2>Reading data from the web / webscraping</h2>
+<div id="reading-data-from-the-web-webscraping-tutorial-httpsdrive.google.comfiled0b1ydo4ynmkaxd3duclrluws2eeuviewuspembed_facebook" class="section level2">
+<h2>Reading data from the web / webscraping [tutorial] (<a href="https://drive.google.com/file/d/0B1YdO4YnMkAxd3dUclRLUWs2eEU/view?usp=embed_facebook" class="uri">https://drive.google.com/file/d/0B1YdO4YnMkAxd3dUclRLUWs2eEU/view?usp=embed_facebook</a>)</h2>
 <ul>
 <li><strong>extract data from open and accessible sites</strong></li>
 <li><code>con &lt;- url</code> = <code>url</code> opens connection to url</li>
@@ -379,23 +379,38 @@ price</code></pre>
 <div id="subsetting-data" class="section level2">
 <h2>Subsetting data</h2>
 <ul>
-<li><strong>Subsetting data by index</strong></li>
+<li><strong>Subsetting data by index</strong>
+<ul>
 <li><code>df[var_index, col_index]</code></li>
 <li><code>df[1:5,]</code> = view the first 5 rows.</li>
 <li><code>df[:2]</code> = view the second column.</li>
 <li><code>df[1:5, 2]</code> = view the first 5 rows and the second column.</li>
-<li>** Subsetting data by logic**</li>
+</ul></li>
+<li>** Subsetting data by logic**
+<ul>
 <li><code>df[(df$V1 &lt;= 3 &amp; df$V2 &gt; 5)]</code> = find only the data in var1 which is less than or equal to 3 <code>AND</code> more than 5 for var 2. Results in dataframe where <code>ALL</code> conditions are satisfied.</li>
 <li><code>df[(df$V1 == 3) | (df$V2 == 9)]</code> = find the data which is equal to 3 for variable 1 <code>OR</code> equal to 9 for variable 2. Results in dataframe where <code>BOTH</code> or <code>EITHER</code> condition is satisified.</li>
-<li><strong>Subsetting data with NAs</strong></li>
+</ul></li>
+<li><strong>Subsetting data with NAs</strong>
+<ul>
 <li><code>df[which(df$V1 &gt; 8)]</code> = find data in variable 1 which is bigger than 8, even with NA.
 <ul>
 <li><code>which</code> = subset data even if there is NAs.</li>
 </ul></li>
-<li><strong>Subsetting data by condition</strong> (<a href="https://stackoverflow.com/questions/33651477/subsetting-a-dataframe-by-a-condition-in-r?noredirect=1#33651536">tutorial</a>)**:</li>
+</ul></li>
+<li><strong>Subsetting data by condition</strong> (<a href="https://stackoverflow.com/questions/33651477/subsetting-a-dataframe-by-a-condition-in-r?noredirect=1#33651536">tutorial</a>):
+<ul>
 <li><code>which(df$V1 == 4)</code> = subset first column where <code>rows</code> == condition. Output is a <code>integer vector</code>.</li>
 <li><code>subset(df, V1 == 4)</code> = same as above but output is a <code>data.frame</code></li>
 <li><code>df[df$V1 == 4,,drop=F]</code> = same output as <code>subset</code>.</li>
+</ul></li>
+<li><strong>Subsetting data by multiple conditions</strong> [tutorial] (<a href="https://stackoverflow.com/questions/25647470/filter-multiple-conditions-dplyr" class="uri">https://stackoverflow.com/questions/25647470/filter-multiple-conditions-dplyr</a>):
+<ul>
+<li><code>dat$name %in% target</code> = for each value in dat$name, check that it exists in target.</li>
+<li><code>subset(df, v1 %in% condition)</code></li>
+<li><code>df[df$v1 %in% condition,]</code></li>
+<li><code>df[df$gift %in% wishlist,]</code> = subset Santa’s gifts by the multiple items/conditions of the wishlist.</li>
+</ul></li>
 </ul>
 </div>
 <div id="sorting-data-tutorial" class="section level2">
@@ -404,6 +419,10 @@ price</code></pre>
 <li><strong>add column</strong></li>
 <li><code>df$newcolumn &lt;- data</code></li>
 <li><p><code>df$game &lt;- &quot;zelda&quot;</code> add new column <code>game</code> with <code>zelda</code> for it’s value.</p></li>
+<li><strong>re-order columns</strong></li>
+<li><code>df[,c(1,2,3,4)]</code> = original dataset. To re-order columns do</li>
+<li><code>df2 &lt;- df[,c(1,3,2,4)]</code> = re-order columns. The first <code>,</code> means keep all rows, and the 1,2,3,4 refers to the columns</li>
+<li><p><code>df2 &lt;- df[, c(&quot;v1&quot;,&quot;v3&quot;,&quot;v4&quot;)]</code> = re-order by column name</p></li>
 <li><strong>Ordering data</strong></li>
 <li><code>df[order(df$V1),]</code> = order all rows by Variable 1.</li>
 <li><code>df[order(df$V1, df$V2),]</code> = If variable one has duplicate numbers: order all rows by Variable 1 first, then order duplicates by Variable 2.</li>
@@ -458,16 +477,16 @@ df</code></pre>
 <pre class="sourceCode r"><code class="sourceCode r">df &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="st">&quot;country&quot;</span>=<span class="st"> </span><span class="kw">rep</span>(country, <span class="dv">2</span>), <span class="st">&quot;food&quot;</span>=<span class="st"> </span><span class="kw">rep</span>(food, <span class="dt">each =</span> <span class="dv">2</span>), <span class="st">&quot;tonnes&quot;</span> =<span class="st"> </span><span class="kw">sample</span>(<span class="dv">1</span>:<span class="dv">10</span>, <span class="dv">4</span>))
 df</code></pre>
 <pre><code>##       country   food tonnes
-## 1       china  apple      6
+## 1       china  apple      1
 ## 2 afghanistan  apple      9
-## 3       china orange      2
-## 4 afghanistan orange      3</code></pre>
+## 3       china orange     10
+## 4 afghanistan orange      8</code></pre>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(reshape2)</code></pre>
 <pre><code>## Warning: package 'reshape2' was built under R version 3.1.3</code></pre>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">dcast</span>(df[,<span class="dv">1</span>:<span class="dv">3</span>], <span class="dt">formula =</span> country ~<span class="st"> </span>food, <span class="dt">value.var =</span> <span class="st">&quot;tonnes&quot;</span>)</code></pre>
 <pre><code>##       country apple orange
-## 1 afghanistan     9      3
-## 2       china     6      2</code></pre>
+## 1 afghanistan     9      8
+## 2       china     1     10</code></pre>
 <ul>
 <li><strong>Appending data</strong>
 <ul>
@@ -844,7 +863,7 @@ df</code></pre>
 <li><code>tz = &quot;&quot;</code> = can use the “tz” argument to specify time zones (list <a href="http://en.wikipedia.org/wiki/List_of_tz_database_time_zones">here</a>)</li>
 </ul></li>
 <li><em><strong>Note</strong>: there are a variety of functions that are available to parse different formats, all of them are capable of converting the correct information if the order of month year day is correct </em></li>
-<li><em><strong>Note</strong>: when necessary, <code>//</code> or <code>â</code> should be added to provide clarity in date formatting </em></li>
+<li><em><strong>Note</strong>: when necessary, <code>//</code> or <code>—</code> should be added to provide clarity in date formatting </em></li>
 </ul></li>
 <li><code>update(POSIXct, hours = 8, minutes = 34, seconds = 55)</code> = updates components of a date time
 <ul>
@@ -881,17 +900,17 @@ df &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class=
 df$food &lt;-<span class="st"> </span><span class="kw">with</span>(df, food &lt;-<span class="st"> </span><span class="kw">factor</span>(food, <span class="dt">labels =</span> <span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">2</span>)))
 df</code></pre>
 <pre><code>##       country food tonnes
-## 1       china    1     10
-## 2 afghanistan    1      5
-## 3       china    2      8
-## 4 afghanistan    2      9</code></pre>
+## 1       china    1      7
+## 2 afghanistan    1      9
+## 3       china    2      2
+## 4 afghanistan    2      3</code></pre>
 <ul>
 <li><strong>Clean up text</strong>
 <ul>
 <li><code>gsub(&quot;delete&quot;, &quot;replace_with&quot;, txt)</code></li>
 <li><code>txt &lt;- c(&quot;I wanna be the very best&quot;)</code></li>
 <li><code>gsub(&quot;best&quot;, &quot;worst&quot;, txt)</code> = replace <code>best</code> with <code>worst</code></li>
-<li><code>txt &lt;- gsub(&quot;\xca&quot;, &quot;&quot;, txt)</code> = remove unrecognised character <code>ï¿½</code> and replace with space.</li>
+<li><code>txt &lt;- gsub(&quot;\xca&quot;, &quot;&quot;, txt)</code> = remove unrecognised character <code>�</code> and replace with space.</li>
 </ul></li>
 <li><strong>Remove lines/rows</strong>
 <ul>
@@ -934,6 +953,7 @@ df</code></pre>
 <ul>
 <li><code>grep(&quot;cowboys&quot;, df)</code> = find all rows where values matches <code>cowboy</code></li>
 <li><code>grep(&quot;cowboys&quot;, df, value = T)</code> = <code>value = T</code> returns the actual value where <code>cowboy</code> appears instead of telling you where.</li>
+<li><code>grep(&quot;cowboys&quot;, df, ignore.case = TRUE)</code> = case insensitive. Finds <code>Cowboy</code> and <code>cowboy</code></li>
 <li><code>length(grep(&quot;cowboys, df$col1&quot;)</code> = check if value does not appear. If result = 0, then value does not exist in vector.</li>
 </ul></li>
 <li><code>grepl</code> = returns True/False for matches.
@@ -1052,14 +1072,18 @@ Now I'm the real Slim Shady...</code></pre>
 <li><code>m</code> = at least, <code>n</code> = not more than</li>
 <li><code>{m}</code> = exactly <code>m</code> matches</li>
 <li><code>{m, }</code> = at least m matches</li>
-<li><em>example</em>: <code>Bush( +[^ ]+ +){1, 5} debate</code> debates matches “Bush + (at least one space + any word that doesnât contain space + at least one space) this pattern repeated between 1 and 5 times + debates”. The word bush with debate with 1-5 words between.</li>
+<li><em>example</em>: <code>Bush( +[^ ]+ +){1, 5} debate</code> debates matches “Bush + (at least one space + any word that doesn’t contain space + at least one space) this pattern repeated between 1 and 5 times + debates”. The word bush with debate with 1-5 words between.</li>
 <li><code>bush won the debate</code></li>
 <li><code>Bush should have taken the debate more seriously</code>.</li>
 <li><em>example2</em>: <code>Ged( +[^ ]+ +){1, 5} magic</code>. The word Ged and magic with 1-5 words between. <code>Ged wanted more magic power</code>, <code>Ged set down the book of magic and runes</code>.</li>
 </ul></li>
 <li><code>()</code> = define group as the the text in parentheses, groups will be remembered and can be referred to by <code>\1</code>, <code>\2</code>, etc.
 <ul>
-<li><em>example</em>: <code>([a-zA-Z]+) +\1 +</code> matches “any word + at least one space + the same word repeated + at least one space” = “night night”, “so so”, etc.</li>
+<li><em>example</em>: <code>([a-zA-Z]+) +\1 +</code> matches “any word + at least one space + the same word repeated + at least one space” = “night night”, “so so”, etc</li>
+</ul></li>
+<li><code>.*something.*</code> = replace whole string / sentence
+<ul>
+<li><em>example</em>: <code>x &lt;- c(&quot;strong wind, weak wind&quot;)</code> = create string<br /><code>gsub(&quot;wind&quot;, &quot;CHIPS&quot;, x)</code> = replaces only part of string, i.e. <code>strong CHIPS, weak CHIPS</code><br /><code>gsub(&quot;.*wind.*&quot;, &quot;CHIPS&quot;, x)</code> = replaces whole string, i.e. <code>CHIPS, CHIPS</code></li>
 </ul></li>
 </ul>
 </div>
@@ -1067,6 +1091,10 @@ Now I'm the real Slim Shady...</code></pre>
 <h2>Working with dates</h2>
 <ul>
 <li><code>date()</code> = returns current date in character format</li>
+<li><code>weeekdays()</code> = returns day of the week
+<ul>
+<li><code>Sys.setlocale(&quot;LC_TIME&quot;, &quot;C&quot;)</code> = sets days in english, rather than portuguese</li>
+</ul></li>
 <li><code>Sys.Date()</code> = returns the current date in Date format</li>
 <li><code>format(object, &quot;format&quot;)</code> = formats object in specified format
 <ul>
@@ -1085,6 +1113,11 @@ Now I'm the real Slim Shady...</code></pre>
 </ul></li>
 <li><code>as.Date(&quot;character&quot;, &quot;format&quot;)</code> = converts character vector/variable into Date format by using the codes above</li>
 <li><em>example</em>: <code>z &lt;- as.Date(&quot;1jan1960&quot;, &quot;%d%b%Y&quot;)</code> = creates a Date of “1960-01-01”</li>
+<li><strong><em>Note</em></strong>: when formating strings into dates use the correct seperator
+<ul>
+<li><code>as.Date(&quot;4/18/1950&quot;, &quot;%m/%d/%Y&quot;)</code> = use forward slash sep</li>
+<li><code>as.Date(&quot;October 6, 2010&quot;, &quot;%B %d, %Y&quot;)</code> = use comma sep after day</li>
+</ul></li>
 <li><code>Date1 - Date2</code> = prints the difference between the dates in this format “Time difference of n days”</li>
 <li><em>example</em>: z &lt;-
 <ul>

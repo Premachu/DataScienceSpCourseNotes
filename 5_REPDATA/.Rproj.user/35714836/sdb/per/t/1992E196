@@ -1,0 +1,16 @@
+{
+    "contents" : "---\ntitle: \"Grade 7 Maths\"\nauthor: \"Prem\"\ndate: \"Monday, January 18, 2016\"\noutput: html_document\n---\n\n## Proportions\n\nPikachu is poisoned, so we loose 5 HP for every 2 steps we take. If we have 30 HP, how many steps can we take? \n\n* **Algebra**\n    * Flip, and destroy\n    * $5/2 = 30/x$\n    * \n    \n    \n* **multiplication**\n\n\n## Statistics [tut1](http://mathbench.umd.edu/modules/visualization_log-transformations/page04.htm)   [tut2](http://www.biostathandbook.com/transformation.html)   [Rtut](http://www.r-statistics.com/2013/05/log-transformations-for-skewed-and-wide-distributions-from-practical-data-science-with-r/)\n\n* **Log Transformations**\n    * Data differs by orders of magitude (10, 100, 1000, 10000)\n    * To make modelling easier and appearance on graph nicer, log transform\n    * Make skewed data normally distributed\n    * Makes patterns more visible\n    \n## Basic Geometry\n\n### Scale Drawings\n\nPeter just buried a treasure chest on a remote island and is making a map so he can find it later. One of the key landmarks in the area is a small rectangular hut, 5m by 8m.  \n\nThe map's scale is 2 units: 1m. Help him draw...\n\n * Convert 5m into units\n    * $5 ~m~ * ~2~ units / 1 m$\n    * 5 ~~m~~ * 2 units / 1 ~~m~~\n    * $= 10 units$\n * Convert 8m into units\n    * $8m * 2 units / 1 m$\n    * 8 ~~m~~ * 2 units / 1 ~~m~~\n    * $= 16 units$\n \n \n    ",
+    "created" : 1454169420978.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "417181414",
+    "id" : "1992E196",
+    "lastKnownWriteTime" : 1454185536,
+    "path" : "C:/Users/Prem/Dropbox/Knowledge/STEM/Math/grade7.Rmd",
+    "project_path" : null,
+    "properties" : {
+    },
+    "source_on_save" : false,
+    "type" : "r_markdown"
+}

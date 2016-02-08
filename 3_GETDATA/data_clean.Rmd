@@ -103,7 +103,7 @@ rootNode[[1]][[1]]
     names(jsondata)
     jsondata$pokemon[[1]]
     
-## Reading data from the web / webscraping
+## Reading data from the web / webscraping [tutorial] (https://drive.google.com/file/d/0B1YdO4YnMkAxd3dUclRLUWs2eEU/view?usp=embed_facebook)
 * **extract data from open and accessible sites**
   * `con <- url` = `url` opens connection to url
   * `htmlCode <- readLines(url)` = read data from url.
@@ -235,20 +235,26 @@ joined <- join(dt_2[,1], dt_1[,1])
 ## Subsetting data
 
 * **Subsetting data by index**
-  * `df[var_index, col_index]` 
-  * `df[1:5,]` = view the first 5 rows.
-  * `df[:2]` = view the second column.
-  * `df[1:5, 2]` = view the first 5 rows and the second column. 
+    * `df[var_index, col_index]` 
+    * `df[1:5,]` = view the first 5 rows.
+    * `df[:2]` = view the second column.
+    * `df[1:5, 2]` = view the first 5 rows and the second column. 
 * ** Subsetting data by logic**
-  * `df[(df$V1 <= 3 & df$V2 > 5)]` = find only the data in var1 which is less than or equal to 3 `AND` more than 5 for var 2. Results in dataframe where `ALL` conditions are satisfied.
-  * `df[(df$V1 == 3) | (df$V2 == 9)]` = find the data which is equal to 3 for variable 1 `OR` equal to 9 for variable 2. Results in dataframe where `BOTH` or `EITHER` condition is satisified. 
+    * `df[(df$V1 <= 3 & df$V2 > 5)]` = find only the data in var1 which is less than or equal to 3 `AND` more than 5 for var 2. Results in dataframe where `ALL` conditions are satisfied.
+    * `df[(df$V1 == 3) | (df$V2 == 9)]` = find the data which is equal to 3 for variable 1 `OR` equal to 9 for variable 2. Results in dataframe where `BOTH` or `EITHER` condition is satisified. 
 * **Subsetting data with NAs**
-  * `df[which(df$V1 > 8)]` = find data in variable 1 which is bigger than 8, even with NA.
-      * `which` = subset data even if there is NAs. 
-* **Subsetting data by condition** ([tutorial](https://stackoverflow.com/questions/33651477/subsetting-a-dataframe-by-a-condition-in-r?noredirect=1#33651536))**:
-  * `which(df$V1 == 4)` = subset first column where `rows` == condition. Output is a `integer vector`.
-  * `subset(df, V1 == 4)` = same as above but output is a `data.frame`
-  * `df[df$V1 == 4,,drop=F]` = same output as `subset`. 
+    * `df[which(df$V1 > 8)]` = find data in variable 1 which is bigger than 8, even with NA.
+        * `which` = subset data even if there is NAs. 
+* **Subsetting data by condition** ([tutorial](https://stackoverflow.com/questions/33651477/subsetting-a-dataframe-by-a-condition-in-r?noredirect=1#33651536)):
+    * `which(df$V1 == 4)` = subset first column where `rows` == condition. Output is a `integer vector`.
+    * `subset(df, V1 == 4)` = same as above but output is a `data.frame`
+    * `df[df$V1 == 4,,drop=F]` = same output as `subset`. 
+  
+* **Subsetting data by multiple conditions** [tutorial] (https://stackoverflow.com/questions/25647470/filter-multiple-conditions-dplyr):
+    * `dat$name %in% target` = for each value in dat$name, check that it exists in target.
+    * `subset(df, v1 %in% condition)` 
+    * `df[df$v1 %in% condition,]` 
+    * `df[df$gift %in% wishlist,]` = subset Santa's gifts by the multiple items/conditions of the wishlist. 
 
 ## Sorting data ([tutorial](https://github.com/thoughtfulbloke/faoexample)):
 
@@ -256,6 +262,11 @@ joined <- join(dt_2[,1], dt_1[,1])
   * `df$newcolumn <- data`
   * `df$game <- "zelda"` add new column `game` with `zelda` for it's value.
 
+* **re-order columns**
+  * `df[,c(1,2,3,4)]` = original dataset. To re-order columns do
+  * `df2 <- df[,c(1,3,2,4)]` = re-order columns. The first `,` means keep all rows, and the 1,2,3,4 refers to the columns
+  * `df2 <- df[, c("v1","v3","v4")]` = re-order by column name
+  
 * **Ordering data**
   * `df[order(df$V1),]` = order all rows by Variable 1.
   * `df[order(df$V1, df$V2),]` = If variable one has duplicate numbers: order all rows by Variable 1 first, then order duplicates by Variable 2.
@@ -604,6 +615,7 @@ df
   * `grep("string", df$col)` = find intances which match value/string
       * `grep("cowboys", df)` = find all rows where values matches `cowboy`
       * `grep("cowboys", df, value = T)` = `value = T` returns the actual value where `cowboy` appears instead of telling you where.
+      * `grep("cowboys", df, ignore.case = TRUE)` = case insensitive. Finds `Cowboy` and `cowboy`
       * `length(grep("cowboys, df$col1")` = check if value does not appear. If result = 0, then value does not exist in vector.
   * `grepl` = returns True/False for matches. 
       * `table(grepl("cowboys", df))` = return T/F tab11le 
@@ -692,11 +704,17 @@ Now I'm the real Slim Shady...
     * `Bush should have taken the debate more seriously`. 
     * *example2*: `Ged( +[^ ]+ +){1, 5} magic`. The word Ged and magic with 1-5 words between. `Ged wanted more magic power`, `Ged set down the book of magic and runes`. 
 * `()` = define group as the the text in parentheses, groups will be remembered and can be referred to by `\1`, `\2`, etc.
-    * *example*: `([a-zA-Z]+) +\1 +` matches "any word + at least one space + the same word repeated + at least one space" = "night night", "so so", etc.
-
+    * *example*: `([a-zA-Z]+) +\1 +` matches "any word + at least one space + the same word repeated + at least one space" = "night night", "so so", etc
+* `.*something.*` = replace whole string / sentence
+    * *example*: `x <- c("strong wind, weak wind")` = create string  
+    `gsub("wind", "CHIPS", x)` = replaces only part of string, i.e. `strong CHIPS, weak CHIPS`  
+    `gsub(".*wind.*", "CHIPS", x)` = replaces whole string, i.e. `CHIPS, CHIPS`  
+    
 ## Working with dates
 
 * `date()` = returns current date in character format
+* `weeekdays()` = returns day of the week 
+    * `Sys.setlocale("LC_TIME", "C")` = sets days in english, rather than portuguese 
 * `Sys.Date()` = returns the current date in Date format
 * `format(object, "format")` = formats object in specified format
     * when object = Date, then we can use any combination of the following
@@ -711,6 +729,9 @@ Now I'm the real Slim Shady...
     * *example*: `format(Sys.Date(), "%a %b %d")` = returns "Sun Jan 18"
 * `as.Date("character", "format")` = converts character vector/variable into Date format by using the codes above
   * *example*: `z <- as.Date("1jan1960", "%d%b%Y")` = creates a Date of "1960-01-01"
+  * ***Note***: when formating strings into dates use the correct seperator
+      * `as.Date("4/18/1950", "%m/%d/%Y")` = use forward slash sep
+      * `as.Date("October 6, 2010", "%B %d, %Y")` = use comma sep after day
 * `Date1 - Date2` = prints the difference between the dates in this format "Time difference of n days"
   * *example*: z <- 
     * `as.numeric(Date1 - Date2)` on this result will print/store n, the numeric difference. Return numeric variable for differene in days.
@@ -720,6 +741,7 @@ Now I'm the real Slim Shady...
 * `lubridate` package [`library(lubridate)`] = see lubridate section
     * `?Sys.timezone` = documentation on how to determine/set timezones
 * Ultimately you want dates to be in class "Date" or classes "POSIXct", "POSIXlt".
+
 
 ## Data Sources
 * Open Gov sites
