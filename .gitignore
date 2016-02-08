@@ -1,0 +1,61 @@
+# Ignore everything in directory (`aaa/*`) but not files which end in html (!aaa/*.html)  
+
+5_REPDATA/*
+!5_REPDATA/*.html
+!5_REPDATA/*.Rmd
+!5_REPDATA/figures/
+
+
+6_STATINFERENCE/*
+!6_STATINFERENCE/*.html
+!6_STATINFERENCE/*.Rmd
+!6_STATINFERENCE/figures/
+
+
+# Windows image file caches
+Thumbs.db
+ehthumbs.db
+
+# Folder config file
+Desktop.ini
+
+# Recycle Bin used on file shares
+$RECYCLE.BIN/
+
+# Windows Installer files
+*.cab
+*.msi
+*.msm
+*.msp
+
+# Windows shortcuts
+*.lnk
+
+# =========================
+# Operating System Files
+# =========================
+
+# OSX
+# =========================
+
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Thumbnails
+._*
+
+# Files that might appear in the root of a volume
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+
+# Directories potentially created on remote AFP share
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
