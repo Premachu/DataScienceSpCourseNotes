@@ -1,0 +1,103 @@
+---
+title: "Statistical Inference Course Notes"
+author: "P.Gill"
+output:
+  html_document:
+    toc: yes
+header-includes: \usepackage{graphicx}
+---
+
+## Overview
+
+* **[book](https://leanpub.com/LittleInferenceBook/read)**
+
+* **Statistical Inference** = generating conclusions about a population from a noisy sample
+* Goal = extend beyond data to population. Generating new knowledge. 
+* Statistical Inference = only formal system of inference we have
+* many different modes, but **two** broad flavors of inference (inferential paradigms): ***Bayesian*** vs ***Frequencist***
+
+## Overview
+* **Statistical Inference** = generating conclusions about a population from a noisy sample
+
+
+## Probability
+
+* probabillity assigns a number between 0 and 1 to give a sense of "chance" for an event
+* **probabillity model** = connects data to population
+* Given a random experiment (say rolling a die) a probabillity measure is a population quantity that summarizes the randomness
+    * `randomness` = an unexpected/uncontrolled event
+    * `probabillity` = how unexpected/likely the event is
+        * when you open a pack of cards, the probabillity of a common card is high and thus expected, a rare card is low and unexpected. 
+    * `population quantity` = something that exists in the population that we would like to estimate. i.e. In the population there exists a number of girls who buy Pokemon. Using our data we would like to estimate that figure
+    
+
+###  Kolmogorov’s Three Rules probabillity must follow
+
+* For an experiment with a random outcome, probabillity takes a possible outcome from an experiment and:
+
+* **rule 1**: assigns it a number between 0 and 1 to give a sense of "chance" for an event
+    * **example**: the probabillity of a dice roll being a 1
+    * $0 \le P(E) \le 1$, where $E$ = event
+* **rule 2**: probabillity that nothing occurs is 0. proabillity something occurs is 1
+* probabillity of something = 1 **minus** the probabillity the **opposite occurs**
+    * **example**: What is the probabillity that you will catch a Pikachu? 
+    * There are 5 pokemon in the woods. The chance of catching any is equal.
+    * 1 - (4/5) = probabillity pikachu will be caught
+* **rule 3**: the probabillity of atleast one of two things (union) that can not simultaneously occur (mutually exclusive) together is the sum of their respective probabillities
+      * ***note***: `mutually exclusive` = two events that can not occur at the same time.  `union` = at least one of the two events / one or the other.
+    * **example** What is the probabillity of rolling atleast a one or two?
+    * we cannot get a 1 and 2 on a die simultaneously
+    * Rule 3 says since the event of getting a 1 and 2 on a die is mutually exclusive, the probabillity of at least one (the union) is the sum of their respective probabillities 
+    * probabillity of getting a 1 is 1/6, the probabillity of getting a 2 is 1/6, then the probabillity of getting a 1 or 2 is 2/6, the sum of two probabillities since they are mutually exclusive
+    * for independent events $A$ and $B$, $P(A \:\cup\: B) = P(A) + P(B)$ 
+    * probabillity of getting a 1 or a 2 = $1/6 + 1/6 = 2/6$
+
+### Consequences of the Three Rules**
+
+* probabillity something occurs = 1 - the opposite occuring
+    * There are 5 pokemon in the woods. Catching any is equally likely
+    * Let $A$ be the event of catching a pikachu and $A^c$ be the opposite, catching caterpie, rattata, metapod and weedle
+    * Since $A$ and $A^c$ are cannot both simultaneously occur, they are mutually exclusive. The probabillity that either $A$ or $A^c$ is $P(A) + P(A^c)$.  Notice, the probabillity that either occurs is the probabillity of getting a pikachu, caterpie, rattata, metapod or weedle, , or in other words, the probability that something occurs, which is 1 by rule number 2, So we have that $1 = P(A) + P(A^c)$ or that $P(A) = 1 - P(A^c)$.
+
+* probabillity of the **union** of any two sets of outcomes that have nothing in common (mutually exclusive) = sum of their respective probabillities
+    * for independent events $A$ and $B$ (3 or 4), $P(A \:\cup\: B) = P(A) + P(B)$. *read*: Let $A$ be getting a 1 or 2 and $B$ getting a 3 or 4, probabillity of getting a 1,2,3 or 4 = $P(A) + P(B)$
+
+```{r echo = FALSE, fig.width = 4, fig.height = 3, fig.align = 'center'}
+library(grid);library(png)
+grid.raster(readPNG("figures/1.png"))
+```
+
+* if $A$ implies occurrence of $B$, then $P(A)$ occurring $< P(B)$ occurring
+    * $A$ lives inside $B$, so it makes sense that the probabillity of getting a 1 or 2 (set $B$) is larger than the probabillity of getting a 1 (set $A$)
+    * Think of it in reverse. If bollywood($A$) is a subset of musicals($B$), the probabillity of people liking musicals or bollywood is larger than someone just liking bollywood. 
+    
+
+```{r echo = FALSE, fig.width = 4, fig.height = 3, fig.align = 'center'}
+grid.raster(readPNG("figures/2.png"))
+```
+
+* for any two events, probability of at least one occurs = the sum of their probabilities - their [intersection](https://www.khanacademy.org/math/probability/independent-dependent-probability/basic_set_operations/v/intersection-and-union-of-sets) (in other words, probabilities can not be added simply if they have non-trivial intersection)
+    * `non-trivial` = non-mutually exclusive, they can occur together
+    * in other words, probabillities that are not mutually exclusive can not be simply added
+    * **example**: 3% of the American population has sleep apnea. They also report that around 10% of the North American and European population has restless leg syndrome. Does this imply that 13% of people will have at least one sleep problems of these sorts? In other words, can we simply add these two probabilities?
+    *Answer: No, the events can simultaneously occur and so are not mutually exclusive. To elaborate let: 
+    ***note***: don't add probabillities unless the events are mutually exclusive
+```{r echo = FALSE, fig.width = 4, fig.height = 3, fig.align = 'center'}
+grid.raster(readPNG("figures/3.png"))
+```
+
+* for independent events $A$ and $B$, $P(A \:\cup\: B) = P(A) \times P(B)$
+* for outcomes that can occur with different combination of events and these combinations are mutually exclusive, the $P(E_{total}) =  \sum P(E_{part})$
+
+
+## Conditional Probability
+## Expectations
+## Variance
+## Common Distributions
+## Asymptotics
+## T confidence intervals
+## Hypothesis testing
+## P-values
+## Power
+## Multiple Testing
+## Resampling
